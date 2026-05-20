@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vetter — Análise de Leads 2025/2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0ede8;--text2:#999;--text3:#555;--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--red:#f87171;--red-dim:rgba(248,113,113,0.1);--blue:#60a5fa;--blue-dim:rgba(96,165,250,0.1);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.1);--purple:#a78bfa;--purple-dim:rgba(167,139,250,0.1);--accent:#e8e0d0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+.header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);z-index:100}
+.logo{font-size:13px;font-weight:500;color:var(--text2);letter-spacing:.08em;text-transform:uppercase}
+.logo span{color:var(--text)}
+.header-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
+.main-nav{display:flex;gap:0;padding:0 32px;border-bottom:1px solid var(--border);overflow-x:auto}
+.main-tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s}
+.main-tab:hover{color:var(--text)}
+.main-tab.on{color:var(--text);border-bottom-color:var(--accent)}
+.content{padding:28px 32px;max-width:1100px}
+.panel{display:none}.panel.on{display:block}
+.sec-nav{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap}
+.sec-tab{padding:5px 13px;border-radius:6px;border:1px solid var(--border2);font-size:12px;cursor:pointer;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
+.sec-tab:hover{background:var(--bg3);color:var(--text)}
+.sec-tab.on{background:var(--bg4);color:var(--text);border-color:var(--border2)}
+.sub-view{display:none}.sub-view.on{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:24px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.ml{font-size:11px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.mv{font-size:24px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.ms{font-size:11px;color:var(--text3);margin-top:3px}
+.mc.ok .mv{color:var(--green)}.mc.bad .mv{color:var(--red)}.mc.info .mv{color:var(--blue)}.mc.warn .mv{color:var(--amber)}
+.sec{margin-bottom:24px}
+.st{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.br{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:12px}
+.bl{width:155px;flex-shrink:0;color:var(--text2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl.s{width:125px}.bl.xs{width:105px}
+.bt{flex:1;background:var(--bg3);border-radius:4px;height:22px;overflow:hidden}
+.bf{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500;white-space:nowrap;min-width:4px;font-family:'DM Mono',monospace}
+.bn{font-size:11px;color:var(--text3);width:46px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+.chart-wrap{position:relative;width:100%;margin-bottom:8px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:12px;color:var(--text2)}
+.legend span{display:flex;align-items:center;gap:5px}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 10px;color:var(--text3);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+.tbl td:first-child{color:var(--text);font-weight:500}
+.ok-t{color:var(--green)!important}.bad-t{color:var(--red)!important}.warn-t{color:var(--amber)!important}.info-t{color:var(--blue)!important}
+.ib{border-left:3px solid;padding:10px 14px;margin-bottom:8px;border-radius:0 8px 8px 0;font-size:12px;color:var(--text2)}
+.ib.ok{border-color:var(--green);background:var(--green-dim)}
+.ib.bad{border-color:var(--red);background:var(--red-dim)}
+.ib.inf{border-color:var(--blue);background:var(--blue-dim)}
+.ib.warn{border-color:var(--amber);background:var(--amber-dim)}
+.it{font-weight:600;color:var(--text);margin-bottom:3px;font-size:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.box h3{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:500;margin:2px 2px 0 0}
+.tag.g{background:var(--green-dim);color:var(--green)}.tag.r{background:var(--red-dim);color:var(--red)}.tag.b{background:var(--blue-dim);color:var(--blue)}.tag.a{background:var(--amber-dim);color:var(--amber)}.tag.p{background:var(--purple-dim);color:var(--purple)}
+.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.funnel-label{width:130px;flex-shrink:0;font-size:12px;color:var(--text2)}
+.funnel-bar{height:26px;border-radius:5px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;font-family:'DM Mono',monospace}
+.funnel-pct{font-size:11px;color:var(--text3);width:42px;text-align:right;font-family:'DM Mono',monospace}
+.note{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--text2);margin:10px 0}
+.note strong{color:var(--text)}
+.camp-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.camp-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.camp-name{font-size:15px;font-weight:500;color:var(--text)}
+.camp-meta{font-size:11px;color:var(--text3)}
+.stage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:6px;margin-top:10px}
+.stage-cell{background:var(--bg3);border-radius:6px;padding:8px 10px;text-align:center}
+.sc-n{font-size:18px;font-weight:500;color:var(--text)}
+.sc-l{font-size:10px;color:var(--text3);margin-top:2px}
+.sc-hot{background:var(--green-dim)}.sc-hot .sc-n{color:var(--green)}
+.sc-warn{background:var(--amber-dim)}.sc-warn .sc-n{color:var(--amber)}
+.sc-bad{background:var(--red-dim)}.sc-bad .sc-n{color:var(--red)}
+.sc-dim{opacity:.5}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.badge.ok{background:var(--green-dim);color:var(--green)}.badge.bad{background:var(--red-dim);color:var(--red)}.badge.b{background:var(--blue-dim);color:var(--blue)}.badge.warn{background:var(--amber-dim);color:var(--amber)}
+.pipe-table{width:100%;border-collapse:collapse;font-size:12px}
+.pipe-table th{text-align:left;padding:7px 10px;color:var(--text3);font-weight:500;font-size:11px;border-bottom:1px solid var(--border);white-space:nowrap}
+.pipe-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.pipe-table tr:last-child td{border-bottom:none}
+.pipe-table td:first-child{color:var(--text);font-weight:500}
+.num{font-family:'DM Mono',monospace;font-size:12px;text-align:right}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+@media(max-width:640px){
+  .header{padding:14px 16px}.main-nav{padding:0 16px}.content{padding:18px 16px}
+  .two{grid-template-columns:1fr}.bl{width:110px}.bl.s{width:90px}.bl.xs{width:80px}
+  .metrics,.cards{grid-template-columns:repeat(2,1fr)}
+  .stage-grid{grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo"><span>Vetter</span> — Análise de Leads</div>
+  <div class="header-meta">Dez/25 – Mai/26 &nbsp;·&nbsp; 8.550 leads</div>
+</div>
+
+<div class="main-nav">
+  <button class="main-tab on"  onclick="setPanel('geral')">Visão Geral</button>
+  <button class="main-tab"     onclick="setPanel('am')">Campanha AM</button>
+  <button class="main-tab"     onclick="setPanel('fd')">Campanha FD</button>
+  <button class="main-tab"     onclick="setPanel('midia')">Google vs Meta</button>
+  <button class="main-tab"     onclick="setPanel('pipeline')">Pipeline Ativo</button>
+</div>
+
+<div class="content">
+
+<!-- ======================================================
+     PAINEL 1 — VISÃO GERAL
+     ====================================================== -->
+<div class="panel on" id="panel-geral">
+  <div class="sec-nav">
+    <button class="sec-tab on" onclick="setSub('geral','resumo')">Resumo</button>
+    <button class="sec-tab"    onclick="setSub('geral','funil')">Funil</button>
+    <button class="sec-tab"    onclick="setSub('geral','mes')">Por mês</button>
+    <button class="sec-tab"    onclick="setSub('geral','descarte')">Descartes</button>
+  </div>
+
+  <!-- resumo -->
+  <div class="sub-view on" id="geral-resumo">
+    <div class="cards">
+      <div class="mc"><div class="ml">Total de leads</div><div class="mv">8.550</div><div class="ms">Dez/25 – Mai/26</div></div>
+      <div class="mc bad"><div class="ml">Taxa de descarte</div><div class="mv">51,2%</div><div class="ms">4.376 leads</div></div>
+      <div class="mc"><div class="ml">Chegaram ao SDR</div><div class="mv">~46%</div><div class="ms">AM + FD</div></div>
+      <div class="mc ok"><div class="ml">Leads quentes</div><div class="mv">136</div><div class="ms">Em atendimento+</div></div>
+      <div class="mc"><div class="ml">Propostas abertas</div><div class="mv">10</div><div class="ms">+ 19 qualificados</div></div>
+      <div class="mc ok"><div class="ml">Vendas realizadas</div><div class="mv">2</div><div class="ms">conversão 0,02%</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Volume por campanha</div>
+      <div class="br"><div class="bl">AM</div><div class="bt"><div class="bf" style="width:100%;background:#3b82f6;color:#dbeafe">5.391 leads</div></div></div>
+      <div class="br"><div class="bl">Outros / WhatsApp</div><div class="bt"><div class="bf" style="width:42%;background:#60a5fa44;color:#93c5fd">2.268 leads</div></div></div>
+      <div class="br"><div class="bl">FD</div><div class="bt"><div class="bf" style="width:16.5%;background:#a78bfa55;color:#c4b5fd">891 leads</div></div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Taxa de descarte por campanha</div>
+      <div class="br"><div class="bl">FD</div><div class="bt"><div class="bf" style="width:54%;background:#f87171;color:#fee2e2">54,0%</div></div><div class="bn bad-t">891</div></div>
+      <div class="br"><div class="bl">AM</div><div class="bt"><div class="bf" style="width:52.7%;background:#fb923c;color:#fff7ed">52,7%</div></div><div class="bn warn-t">5.391</div></div>
+      <div class="br"><div class="bl">WhatsApp / Site</div><div class="bt"><div class="bf" style="width:48.8%;background:#fb923c;color:#fff7ed">48,8%</div></div><div class="bn">838</div></div>
+      <div class="br"><div class="bl">Orgânico / Outros</div><div class="bt"><div class="bf" style="width:38.6%;background:#4ade80;color:#052e16">38,6%</div></div><div class="bn ok-t">1.430</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Insights</div>
+      <div class="ib ok"><div class="it">Orgânico / busca direta tem o melhor resultado</div>Menor descarte (38,6%) e as 2 vendas registradas no período vieram desse grupo — quem chega por busca ativa tem intenção real de compra.</div>
+      <div class="ib bad"><div class="it">Gargalo está no atendimento, não na captação</div>Das 136 leads quentes, apenas 10 viraram proposta (7,4%). A conversão quente→proposta é a principal alavanca de melhoria disponível.</div>
+      <div class="ib inf"><div class="it">AM e FD são 100% Meta — Google Ads não está nessas campanhas</div>Todo o Google Ads da base vem de brand search e LP Fort Myers Search, sem tag de campanha específica AM/FD.</div>
+    </div>
+  </div>
+
+  <!-- funil -->
+  <div class="sub-view" id="geral-funil">
+    <div class="sec">
+      <div class="st">Funil consolidado — todas as campanhas</div>
+      <div class="funnel-row"><div class="funnel-label">Leads captados</div><div class="funnel-bar" style="width:100%;background:#3b82f6;color:#dbeafe">8.550</div><div class="funnel-pct">100%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Não descartados</div><div class="funnel-bar" style="width:49.9%;background:#6366f1;color:#e0e7ff">4.266</div><div class="funnel-pct">49,9%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Leads quentes</div><div class="funnel-bar" style="width:5.9%;background:#4ade80;color:#052e16">136</div><div class="funnel-pct">1,6%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Qualificados</div><div class="funnel-bar" style="width:1.5%;background:#fbbf24;color:#451a03">19</div><div class="funnel-pct">0,22%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Propostas</div><div class="funnel-bar" style="width:0.8%;background:#f472b6;color:#4a044e">10</div><div class="funnel-pct">0,12%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Vendas</div><div class="funnel-bar" style="width:0.4%;background:#a78bfa;color:#1e1b4b">2</div><div class="funnel-pct">0,02%</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Leads quentes e propostas por campanha</div>
+      <table class="tbl">
+        <thead><tr><th>Campanha</th><th style="text-align:right">Leads</th><th style="text-align:right">Quentes</th><th style="text-align:right">Propostas</th><th style="text-align:right">Vendas</th></tr></thead>
+        <tbody>
+          <tr><td>AM</td><td style="text-align:right">5.391</td><td style="text-align:right">65</td><td style="text-align:right">2</td><td style="text-align:right bad-t">0</td></tr>
+          <tr><td>FD</td><td style="text-align:right">891</td><td style="text-align:right">11</td><td style="text-align:right">2</td><td style="text-align:right bad-t">0</td></tr>
+          <tr><td>WhatsApp / Site</td><td style="text-align:right">838</td><td style="text-align:right ok-t">25</td><td style="text-align:right ok-t">4</td><td style="text-align:right">0</td></tr>
+          <tr><td>Orgânico / Sem campanha</td><td style="text-align:right">1.430</td><td style="text-align:right ok-t">35</td><td style="text-align:right ok-t">2</td><td style="text-align:right ok-t">2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- por mês -->
+  <div class="sub-view" id="geral-mes">
+    <div class="sec">
+      <div class="st">Leads por mês — total e descartes</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chart-geral-mes" role="img" aria-label="Leads por mês">Dez:2708, Jan:3788, Fev:616, Mar:412, Abr:440, Mai:586.</canvas></div>
+      <div class="legend" id="leg-geral-mes"></div>
+    </div>
+    <div class="note"><strong>Janeiro foi o pico:</strong> 3.788 leads. A queda expressiva a partir de fevereiro sugere redução de investimento em Meta (principal canal da AM). Google Ads cresceu de 91 (dez) para 285 (mai).</div>
+  </div>
+
+  <!-- descartes -->
+  <div class="sub-view" id="geral-descarte">
+    <div class="sec">
+      <div class="st">Motivos de descarte — geral</div>
+      <div class="br"><div class="bl">Não atende/responde</div><div class="bt"><div class="bf" style="width:100%;background:#f87171;color:#fee2e2">2.145 — 49%</div></div></div>
+      <div class="br"><div class="bl">Não responde e-mail</div><div class="bt"><div class="bf" style="width:19.6%;background:#fb923c;color:#fff7ed">421 — 10%</div></div></div>
+      <div class="br"><div class="bl">Lead fora do perfil</div><div class="bt"><div class="bf" style="width:16.7%;background:#fb923c;color:#fff7ed">359 — 8%</div></div></div>
+      <div class="br"><div class="bl">Desistência</div><div class="bt"><div class="bf" style="width:6.9%;background:#60a5fa44;color:#93c5fd">148 — 3%</div></div></div>
+      <div class="br"><div class="bl">Dados inválidos</div><div class="bt"><div class="bf" style="width:2.9%;background:#71717a;color:#f4f4f5">62</div></div></div>
+    </div>
+    <div class="ib bad"><div class="it">59% dos descartes são por incontato</div>"Não atende" + "não responde e-mail" = 2.566 leads. O lead chegou mas nunca retornou contato — sinal de segmentação ampla demais ou público sem intenção real de compra.</div>
+    <div class="ib inf"><div class="it">Descartados IA (maio 01–10): 79% vinham do SDR 1º contato</div>O lead foi abordado pelo SDR mas não converteu. Motivos: desistência (35%), fora do perfil (27%), dados inválidos (14%).</div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PAINEL 2 — CAMPANHA AM
+     ====================================================== -->
+<div class="panel" id="panel-am">
+  <div class="sec-nav">
+    <button class="sec-tab on" onclick="setSub('am','resumo')">Resumo</button>
+    <button class="sec-tab"    onclick="setSub('am','subcamp')">Sub-campanhas</button>
+    <button class="sec-tab"    onclick="setSub('am','criativos')">Criativos</button>
+    <button class="sec-tab"    onclick="setSub('am','descarte')">Descartes</button>
+  </div>
+
+  <div class="sub-view on" id="am-resumo">
+    <div class="cards">
+      <div class="mc info"><div class="ml">Total AM</div><div class="mv">5.391</div><div class="ms">63% do total geral</div></div>
+      <div class="mc bad"><div class="ml">Descarte</div><div class="mv">52,7%</div><div class="ms">2.842 leads</div></div>
+      <div class="mc ok"><div class="ml">SDR+</div><div class="mv">46,5%</div><div class="ms">2.507 leads</div></div>
+      <div class="mc ok"><div class="ml">Leads quentes</div><div class="mv">65</div><div class="ms">1,2% do total AM</div></div>
+      <div class="mc"><div class="ml">Com proposta</div><div class="mv">2</div><div class="ms">+ 6 qualificados</div></div>
+      <div class="mc bad"><div class="ml">Vendas diretas</div><div class="mv">0</div><div class="ms">nenhuma</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Situações AM</div>
+      <table class="tbl">
+        <thead><tr><th>Situação</th><th style="text-align:right">Leads</th><th style="text-align:right">%</th></tr></thead>
+        <tbody>
+          <tr><td>Descarte</td><td style="text-align:right" class="bad-t">2.842</td><td style="text-align:right" class="bad-t">52,7%</td></tr>
+          <tr><td>SDR – 1º Contato</td><td style="text-align:right warn-t">1.590</td><td style="text-align:right warn-t">29,5%</td></tr>
+          <tr><td>2º Contato</td><td style="text-align:right">415</td><td style="text-align:right">7,7%</td></tr>
+          <tr><td>Prospect</td><td style="text-align:right">394</td><td style="text-align:right">7,3%</td></tr>
+          <tr><td>Novo Lead</td><td style="text-align:right">42</td><td style="text-align:right">0,8%</td></tr>
+          <tr><td>3º Contato</td><td style="text-align:right">41</td><td style="text-align:right">0,8%</td></tr>
+          <tr><td>Em Atendimento</td><td style="text-align:right ok-t">52</td><td style="text-align:right ok-t">1,0%</td></tr>
+          <tr><td>Qualificado</td><td style="text-align:right ok-t">6</td><td style="text-align:right"></td></tr>
+          <tr><td>Contato Corretor</td><td style="text-align:right ok-t">5</td><td style="text-align:right"></td></tr>
+          <tr><td>Com Proposta</td><td style="text-align:right ok-t">2</td><td style="text-align:right"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ib ok"><div class="it">Fort Myers + Produtos Vetter: melhores sub-campanhas AM</div>Fort Myers: 26% descarte, 13 quentes em 332 leads (3,9%). Produtos Vetter: 23% descarte, 3 quentes em 84 leads.</div>
+    <div class="ib bad"><div class="it">Bal Harbour: maior volume, pior resultado</div>867 leads, 63% descarte e apenas 2 quentes. A pior relação custo/resultado de toda a AM.</div>
+    <div class="ib warn"><div class="it">1.590 leads parados no SDR 1º — 62% de dezembro</div>Leads com 5+ meses sem avanço. Precisam de campanha de reativação ou descarte manual.</div>
+  </div>
+
+  <div class="sub-view" id="am-subcamp">
+    <div class="sec">
+      <div class="st">Sub-campanhas AM — volume, descarte e quentes</div>
+      <div class="br"><div class="bl">Form 1</div><div class="bt"><div class="bf" style="width:100%;background:#3b82f644;color:#93c5fd">2.703 leads — desc 59%</div></div><div class="bn warn-t">38 q.</div></div>
+      <div class="br"><div class="bl">Bal Harbour</div><div class="bt"><div class="bf" style="width:32.1%;background:#f87171;color:#fee2e2">867 — desc 63%</div></div><div class="bn bad-t">2 q.</div></div>
+      <div class="br"><div class="bl">Outros AM</div><div class="bt"><div class="bf" style="width:27.4%;background:#60a5fa44;color:#93c5fd">741 — desc 38%</div></div><div class="bn">4 q.</div></div>
+      <div class="br"><div class="bl">Emerald Coast</div><div class="bt"><div class="bf" style="width:12.4%;background:#f87171;color:#fee2e2">334 — desc 54%</div></div><div class="bn bad-t">1 q.</div></div>
+      <div class="br"><div class="bl">Fort Myers</div><div class="bt"><div class="bf" style="width:12.3%;background:#4ade80;color:#052e16">332 — desc 26%</div></div><div class="bn ok-t">13 q.</div></div>
+      <div class="br"><div class="bl">Royal Bay</div><div class="bt"><div class="bf" style="width:7.1%;background:#fb923c;color:#fff7ed">192 — desc 46%</div></div><div class="bn">3 q.</div></div>
+      <div class="br"><div class="bl">Coral Gables</div><div class="bt"><div class="bf" style="width:2.8%;background:#fb923c;color:#fff7ed">76 — desc 46%</div></div><div class="bn bad-t">0 q.</div></div>
+      <div class="br"><div class="bl">Ocean Park</div><div class="bt"><div class="bf" style="width:2.3%;background:#4ade80;color:#052e16">62 — desc 24%</div></div><div class="bn ok-t">1 q.</div></div>
+      <div class="br"><div class="bl">Produtos Vetter</div><div class="bt"><div class="bf" style="width:3.1%;background:#4ade80;color:#052e16">84 — desc 23%</div></div><div class="bn ok-t">3 q.</div></div>
+    </div>
+    <div class="two">
+      <div class="box"><h3>✅ Escalar</h3>
+        <div style="font-size:12px;color:var(--text2);line-height:1.9">
+          <div><span class="tag g">Fort Myers</span> 26% desc · 13 quentes</div>
+          <div><span class="tag g">Produtos Vetter</span> 23% desc · eficiente</div>
+          <div><span class="tag g">Ocean Park</span> 24% desc · testar mais</div>
+        </div>
+      </div>
+      <div class="box"><h3>⚠️ Revisar ou cortar</h3>
+        <div style="font-size:12px;color:var(--text2);line-height:1.9">
+          <div><span class="tag r">Bal Harbour</span> 63% desc · 2 quentes em 867</div>
+          <div><span class="tag r">Emerald Coast</span> 54% desc · 1 quente em 334</div>
+          <div><span class="tag r">Form 1</span> 59% desc · volume sem qualidade</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-view" id="am-criativos">
+    <div class="sec">
+      <div class="st">Top criativos AM (utm_content) — volume e quentes</div>
+      <table class="tbl">
+        <thead><tr><th>Criativo</th><th style="text-align:right">Leads</th><th style="text-align:right">Quentes</th><th style="text-align:right">Taxa</th></tr></thead>
+        <tbody>
+          <tr><td>novoestatico1</td><td style="text-align:right">98</td><td style="text-align:right ok-t">3</td><td style="text-align:right ok-t">3,1%</td></tr>
+          <tr><td>fortmyerstestestoryfachada</td><td style="text-align:right">64</td><td style="text-align:right ok-t">2</td><td style="text-align:right ok-t">3,1%</td></tr>
+          <tr><td>A04-imagem-doagroparaolitoral</td><td style="text-align:right">72</td><td style="text-align:right bad-t">0</td><td style="text-align:right bad-t">0%</td></tr>
+          <tr><td>A06-imagem-rentabilidade</td><td style="text-align:right">62</td><td style="text-align:right bad-t">0</td><td style="text-align:right bad-t">0%</td></tr>
+          <tr><td>a04-imagem-doagroparaolitoral</td><td style="text-align:right">37</td><td style="text-align:right bad-t">0</td><td style="text-align:right bad-t">0%</td></tr>
+          <tr><td>a01-imagem-sala-duplex-royalbay</td><td style="text-align:right">15</td><td style="text-align:right">0</td><td style="text-align:right">0%</td></tr>
+          <tr><td>a03-imagem-sala-garden-balharbour</td><td style="text-align:right">11</td><td style="text-align:right">0</td><td style="text-align:right">0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ib ok"><div class="it">Melhores criativos: "novoestatico1" e "fortmyers story fachada"</div>Ambos com 3,1% de conversão em quentes — únicos criativos rastreados com resultado positivo. Merecem aumento de verba.</div>
+    <div class="ib bad"><div class="it">"Agro para o litoral" e "rentabilidade": volume sem qualidade</div>Juntos somam 171 leads e zero quentes. Alto volume mas sem intenção de compra real.</div>
+    <div class="note"><strong>Atenção:</strong> A maioria dos leads AM não tem utm_content preenchido — os criativos acima representam apenas uma fração do total rastreado.</div>
+  </div>
+
+  <div class="sub-view" id="am-descarte">
+    <div class="sec">
+      <div class="st">Motivos de descarte AM</div>
+      <div class="br"><div class="bl">Não atende/responde</div><div class="bt"><div class="bf" style="width:100%;background:#f87171;color:#fee2e2">1.872 — 65,9%</div></div></div>
+      <div class="br"><div class="bl">Não responde e-mail</div><div class="bt"><div class="bf" style="width:19%;background:#fb923c;color:#fff7ed">355 — 12,5%</div></div></div>
+      <div class="br"><div class="bl">Lead fora do perfil</div><div class="bt"><div class="bf" style="width:17.7%;background:#fb923c;color:#fff7ed">331 — 11,6%</div></div></div>
+      <div class="br"><div class="bl">Desistência</div><div class="bt"><div class="bf" style="width:6%;background:#60a5fa44;color:#93c5fd">112 — 3,9%</div></div></div>
+      <div class="br"><div class="bl">Corretor</div><div class="bt"><div class="bf" style="width:1.6%;background:#71717a;color:#f4f4f5">29</div></div></div>
+      <div class="br"><div class="bl">Dados inválidos</div><div class="bt"><div class="bf" style="width:1.5%;background:#71717a;color:#f4f4f5">28</div></div></div>
+    </div>
+    <div class="ib bad"><div class="it">79% dos descartes AM são por incontato</div>Não atende + não responde e-mail = 2.227 leads. Segmentação de público provavelmente muito ampla, capturando pessoas sem intenção real de compra.</div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PAINEL 3 — CAMPANHA FD
+     ====================================================== -->
+<div class="panel" id="panel-fd">
+  <div class="sec-nav">
+    <button class="sec-tab on" onclick="setSub('fd','resumo')">Resumo</button>
+    <button class="sec-tab"    onclick="setSub('fd','subcamp')">Sub-campanhas</button>
+    <button class="sec-tab"    onclick="setSub('fd','descarte')">Descartes</button>
+  </div>
+
+  <div class="sub-view on" id="fd-resumo">
+    <div class="cards">
+      <div class="mc"><div class="ml">Total FD</div><div class="mv">891</div><div class="ms">10,4% do total geral</div></div>
+      <div class="mc bad"><div class="ml">Descarte</div><div class="mv">54,0%</div><div class="ms">481 leads</div></div>
+      <div class="mc ok"><div class="ml">SDR+</div><div class="mv">46,0%</div><div class="ms">410 leads</div></div>
+      <div class="mc ok"><div class="ml">Leads quentes</div><div class="mv">11</div><div class="ms">1,2% do total FD</div></div>
+      <div class="mc ok"><div class="ml">Com proposta</div><div class="mv">2</div><div class="ms">+ 1 qualificado</div></div>
+      <div class="mc bad"><div class="ml">Vendas diretas</div><div class="mv">0</div><div class="ms">nenhuma</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Situações FD</div>
+      <table class="tbl">
+        <thead><tr><th>Situação</th><th style="text-align:right">Leads</th><th style="text-align:right">%</th></tr></thead>
+        <tbody>
+          <tr><td>Descarte</td><td style="text-align:right bad-t">481</td><td style="text-align:right bad-t">54,0%</td></tr>
+          <tr><td>2º Contato</td><td style="text-align:right">168</td><td style="text-align:right">18,9%</td></tr>
+          <tr><td>SDR – 1º Contato</td><td style="text-align:right warn-t">92</td><td style="text-align:right warn-t">10,3%</td></tr>
+          <tr><td>Prospect</td><td style="text-align:right">69</td><td style="text-align:right">7,7%</td></tr>
+          <tr><td>3º Contato</td><td style="text-align:right">67</td><td style="text-align:right">7,5%</td></tr>
+          <tr><td>4º Contato</td><td style="text-align:right">3</td><td style="text-align:right">0,3%</td></tr>
+          <tr><td>Em Atendimento</td><td style="text-align:right ok-t">8</td><td style="text-align:right"></td></tr>
+          <tr><td>Com Proposta</td><td style="text-align:right ok-t">2</td><td style="text-align:right"></td></tr>
+          <tr><td>Qualificado</td><td style="text-align:right ok-t">1</td><td style="text-align:right"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ib ok"><div class="it">FD tem funil mais equilibrado que AM proporcionalmente</div>67 no 3º contato e 69 Prospect em 891 leads — muito melhor proporção que AM (41 no 3º em 5.391 leads). O SDR FD está avançando mais os leads.</div>
+    <div class="ib ok"><div class="it">UE Duplex/Cobertura: melhor eficiência FD</div>Apenas 37% descarte e 2 propostas abertas em 51 leads. Vale escalar esse segmento.</div>
+    <div class="ib bad"><div class="it">Agro Sudeste: volume sem retorno</div>282 leads, 54% descarte e zero quentes. Centro-Oeste com 296 leads teve 3 quentes e descarte menor (49%).</div>
+  </div>
+
+  <div class="sub-view" id="fd-subcamp">
+    <div class="sec">
+      <div class="st">Sub-campanhas FD — descarte e quentes</div>
+      <div class="br"><div class="bl">Agro Centro-Oeste</div><div class="bt"><div class="bf" style="width:100%;background:#fb923c;color:#fff7ed">296 leads — desc 49%</div></div><div class="bn ok-t">3 q.</div></div>
+      <div class="br"><div class="bl">Agro Sudeste</div><div class="bt"><div class="bf" style="width:95.3%;background:#f87171;color:#fee2e2">282 leads — desc 55%</div></div><div class="bn bad-t">0 q.</div></div>
+      <div class="br"><div class="bl">UE Garden</div><div class="bt"><div class="bf" style="width:34.1%;background:#fb923c;color:#fff7ed">101 leads — desc 58%</div></div><div class="bn">3 q.</div></div>
+      <div class="br"><div class="bl">Outros FD</div><div class="bt"><div class="bf" style="width:36.1%;background:#fb923c;color:#fff7ed">107 leads — desc 57%</div></div><div class="bn bad-t">0 q.</div></div>
+      <div class="br"><div class="bl">UE Duplex/Cobertura</div><div class="bt"><div class="bf" style="width:17.2%;background:#4ade80;color:#052e16">51 leads — desc 37%</div></div><div class="bn ok-t">2 q.</div></div>
+      <div class="br"><div class="bl">Férias Verão</div><div class="bt"><div class="bf" style="width:15.9%;background:#f87171;color:#fee2e2">47 leads — desc 79%</div></div><div class="bn">2 q.</div></div>
+    </div>
+    <div class="two">
+      <div class="box"><h3>✅ Investir mais</h3>
+        <div style="font-size:12px;color:var(--text2);line-height:1.9">
+          <div><span class="tag g">UE Duplex/Cobertura</span> 37% desc · 2 propostas</div>
+          <div><span class="tag g">Agro Centro-Oeste</span> 49% desc · 3 quentes</div>
+        </div>
+      </div>
+      <div class="box"><h3>⚠️ Revisar</h3>
+        <div style="font-size:12px;color:var(--text2);line-height:1.9">
+          <div><span class="tag r">Agro Sudeste</span> 55% desc · 0 quentes em 282</div>
+          <div><span class="tag r">Férias Verão</span> 79% desc · custo altíssimo</div>
+          <div><span class="tag r">Outros FD</span> 57% desc · 0 quentes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-view" id="fd-descarte">
+    <div class="sec">
+      <div class="st">Motivos de descarte FD</div>
+      <div class="br"><div class="bl">Não atende/responde</div><div class="bt"><div class="bf" style="width:100%;background:#f87171;color:#fee2e2">273 — 56,8%</div></div></div>
+      <div class="br"><div class="bl">Não responde e-mail</div><div class="bt"><div class="bf" style="width:24.2%;background:#fb923c;color:#fff7ed">66 — 13,7%</div></div></div>
+      <div class="br"><div class="bl">Desistência</div><div class="bt"><div class="bf" style="width:13.2%;background:#60a5fa44;color:#93c5fd">36 — 7,5%</div></div></div>
+      <div class="br"><div class="bl">Lead fora do perfil</div><div class="bt"><div class="bf" style="width:12.1%;background:#60a5fa44;color:#93c5fd">33 — 6,9%</div></div></div>
+      <div class="br"><div class="bl">Dados inválidos</div><div class="bt"><div class="bf" style="width:7.4%;background:#71717a;color:#f4f4f5">20</div></div></div>
+    </div>
+    <div class="ib bad"><div class="it">Padrão idêntico ao AM: 57% por incontato</div>O mesmo problema estrutural aparece em FD. Indica problema de captação/segmentação, não de campanha específica.</div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PAINEL 4 — GOOGLE vs META
+     ====================================================== -->
+<div class="panel" id="panel-midia">
+  <div class="sec-nav">
+    <button class="sec-tab on" onclick="setSub('midia','comp')">Comparativo</button>
+    <button class="sec-tab"    onclick="setSub('midia','google')">Google Ads</button>
+    <button class="sec-tab"    onclick="setSub('midia','metac')">Meta campanhas</button>
+    <button class="sec-tab"    onclick="setSub('midia','velocidade')">Velocidade</button>
+  </div>
+
+  <div class="sub-view on" id="midia-comp">
+    <div class="cards">
+      <div class="mc info"><div class="ml">Meta (leads)</div><div class="mv">7.203</div><div class="ms">84,3% do total</div></div>
+      <div class="mc bad"><div class="ml">Meta descarte</div><div class="mv">52,3%</div><div class="ms">3.764 leads</div></div>
+      <div class="mc ok"><div class="ml">Google (leads)</div><div class="mv">1.005</div><div class="ms">11,8% do total</div></div>
+      <div class="mc ok"><div class="ml">Google descarte</div><div class="mv">45,5%</div><div class="ms">melhor que Meta</div></div>
+      <div class="mc ok"><div class="ml">Google quentes</div><div class="mv">3,7%</div><div class="ms">37 leads</div></div>
+      <div class="mc ok"><div class="ml">Google resultado</div><div class="mv">1+5</div><div class="ms">1 venda · 5 propostas</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Comparativo por canal</div>
+      <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Canal</th><th style="text-align:right">Leads</th><th style="text-align:right">Descarte</th><th style="text-align:right">SDR+</th><th style="text-align:right">Quentes</th><th style="text-align:right">Venda / Proposta</th></tr></thead>
+        <tbody>
+          <tr><td>Meta <span class="tag b">Facebook/Insta</span></td><td style="text-align:right">7.203</td><td style="text-align:right bad-t">52,3%</td><td style="text-align:right">46,8%</td><td style="text-align:right">92 <span style="color:var(--text3)">(1,3%)</span></td><td style="text-align:right">4 propostas</td></tr>
+          <tr><td>Google Ads <span class="tag g">Search</span></td><td style="text-align:right">1.005</td><td style="text-align:right ok-t">45,5%</td><td style="text-align:right ok-t">54,4%</td><td style="text-align:right ok-t">37 <span style="color:var(--green)">(3,7%)</span></td><td style="text-align:right ok-t">1 venda + 5 propostas</td></tr>
+          <tr><td>WhatsApp</td><td style="text-align:right">75</td><td style="text-align:right">48,0%</td><td style="text-align:right">52,0%</td><td style="text-align:right">5 <span style="color:var(--text3)">(6,7%)</span></td><td style="text-align:right">1 proposta</td></tr>
+          <tr><td>Orgânico / Direto</td><td style="text-align:right">21</td><td style="text-align:right ok-t">38,1%</td><td style="text-align:right ok-t">61,9%</td><td style="text-align:right">1</td><td style="text-align:right ok-t">1 venda</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="st">Evolução mensal — Meta vs Google Ads</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chart-mes-midia" role="img" aria-label="Meta vs Google por mês">Meta caiu de 3582 (jan) para 237 (mai). Google subiu de 91 (dez) para 285 (mai).</canvas></div>
+      <div class="legend" id="leg-mes-midia"></div>
+    </div>
+    <div class="ib ok"><div class="it">Google Ads: 2,8× mais eficiente que Meta por lead</div>Com 11,8% do volume, gerou 1 venda + 5 propostas. Taxa de quentes 3,7% vs 1,3% do Meta.</div>
+    <div class="ib warn"><div class="it">Google cresce enquanto Meta cai mês a mês</div>Google: 91 (dez) → 285 (mai). Meta: 3.582 (jan) → 237 (mai). Tendência de realocação em curso.</div>
+    <div class="ib inf"><div class="it">WhatsApp: melhor taxa proporcional (6,7% de quentes)</div>Volume baixo mas extremamente eficiente. Vale estruturar melhor a captação por esse canal.</div>
+    <div class="ib bad"><div class="it">Meta não gerou nenhuma venda direta no período</div>A única venda Meta registrada veio de busca orgânica/brand search, não de anúncio rastreado.</div>
+  </div>
+
+  <div class="sub-view" id="midia-google">
+    <div class="cards">
+      <div class="mc ok"><div class="ml">Total Google</div><div class="mv">1.005</div><div class="ms">11,8% do total</div></div>
+      <div class="mc ok"><div class="ml">Descarte</div><div class="mv">45,5%</div><div class="ms">o menor de todos</div></div>
+      <div class="mc ok"><div class="ml">SDR+</div><div class="mv">54,4%</div><div class="ms">547 leads</div></div>
+      <div class="mc ok"><div class="ml">Taxa de quentes</div><div class="mv">3,7%</div><div class="ms">37 leads</div></div>
+      <div class="mc ok"><div class="ml">Venda + propostas</div><div class="mv">6</div><div class="ms">1 venda · 5 propostas</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Campanhas Google com resultado</div>
+      <div class="br"><div class="bl">lancamento-ft-myers</div><div class="bt"><div class="bf" style="width:100%;background:#4ade80;color:#052e16">79 leads — 16% desc — 3 quentes</div></div></div>
+      <div class="br"><div class="bl">lançamento-ft-myers</div><div class="bt"><div class="bf" style="width:13.9%;background:#fb923c;color:#fff7ed">11 leads — 36% desc — 0 q.</div></div></div>
+      <div class="note"><strong>Importante:</strong> A maioria dos 37 leads quentes Google não tem utm_campaign preenchido. São brand search — pessoas que buscaram ativamente pela Vetter ou Fort Myers.</div>
+    </div>
+    <div class="sec">
+      <div class="st">Origem dos 37 leads quentes Google (por tag)</div>
+      <div class="br"><div class="bl s">WhatsApp / site Vetter</div><div class="bt"><div class="bf" style="width:100%;background:#3b82f6;color:#dbeafe">23 leads</div></div></div>
+      <div class="br"><div class="bl s">Site institucional</div><div class="bt"><div class="bf" style="width:39.1%;background:#4ade80;color:#052e16">9 leads</div></div></div>
+      <div class="br"><div class="bl s">LP Fort Myers</div><div class="bt"><div class="bf" style="width:21.7%;background:#4ade80;color:#052e16">5 leads</div></div></div>
+    </div>
+    <div class="ib ok"><div class="it">Brand search domina os quentes Google</div>Alta intenção de compra — o perfil de lead ideal. Esses leads buscaram ativamente pela Vetter antes de entrar no funil.</div>
+    <div class="ib warn"><div class="it">UTM coverage fraco no Google impede análise completa</div>Quase todos os quentes Google sem utm_content. Impossível saber quais keywords convertem. Isso precisa ser corrigido para escalar o canal.</div>
+    <div class="ib ok"><div class="it">Fort Myers Search: potencial claro de escala</div>16% descarte, 3 quentes em 79 leads. Campanha pequena com eficiência acima da média — merece mais investimento.</div>
+  </div>
+
+  <div class="sub-view" id="midia-metac">
+    <div class="sec">
+      <div class="st">Campanhas Meta com leads quentes (utm_campaign rastreado)</div>
+      <table class="tbl">
+        <thead><tr><th>Campanha</th><th style="text-align:right">Leads</th><th style="text-align:right">Descarte</th><th style="text-align:right">Quentes</th></tr></thead>
+        <tbody>
+          <tr><td>fortmyers-2801</td><td style="text-align:right">111</td><td style="text-align:right ok-t">18,0%</td><td style="text-align:right ok-t">5</td></tr>
+          <tr><td>produtosvetter-0302</td><td style="text-align:right">93</td><td style="text-align:right ok-t">16,1%</td><td style="text-align:right ok-t">3</td></tr>
+          <tr><td>agro-centro-oeste-lookalike</td><td style="text-align:right">74</td><td style="text-align:right ok-t">16,2%</td><td style="text-align:right ok-t">2</td></tr>
+          <tr><td>agro-sudeste-interesses</td><td style="text-align:right">168</td><td style="text-align:right bad-t">28,6%</td><td style="text-align:right bad-t">0</td></tr>
+          <tr><td>agro-sudeste-lookalike</td><td style="text-align:right">51</td><td style="text-align:right">21,6%</td><td style="text-align:right bad-t">0</td></tr>
+          <tr><td>ue-duplex-cob-lookalike</td><td style="text-align:right">33</td><td style="text-align:right ok-t">12,1%</td><td style="text-align:right">0</td></tr>
+          <tr><td>goldcoast-lookalike</td><td style="text-align:right">17</td><td style="text-align:right">35,3%</td><td style="text-align:right">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ib ok"><div class="it">Fort Myers, Produtos Vetter e Agro CO Lookalike: as únicas Meta com resultado</div>Todas com descarte abaixo de 19% e quentes confirmados. Fort Myers lidera: 5 quentes em 111 leads (4,5%).</div>
+    <div class="ib bad"><div class="it">Agro Sudeste Interesses: maior campanha Meta rastreada, zero resultado</div>168 leads, 0 quentes. Maior volume → pior retorno proporcional.</div>
+  </div>
+
+  <div class="sub-view" id="midia-velocidade">
+    <div class="cards">
+      <div class="mc ok"><div class="ml">Mediana Meta</div><div class="mv">1 dia</div><div class="ms">para 1ª interação</div></div>
+      <div class="mc ok"><div class="ml">Mediana Google</div><div class="mv">0 dias</div><div class="ms">mesmo dia</div></div>
+      <div class="mc ok"><div class="ml">Mediana WhatsApp</div><div class="mv">0 dias</div><div class="ms">imediato</div></div>
+      <div class="mc ok"><div class="ml">Quentes Meta</div><div class="mv">0 dias</div><div class="ms">mediana</div></div>
+      <div class="mc ok"><div class="ml">Quentes Google</div><div class="mv">1 dia</div><div class="ms">mediana</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Velocidade média (dias até 1ª interação SDR)</div>
+      <div class="br"><div class="bl">WhatsApp</div><div class="bt"><div class="bf" style="width:2%;background:#4ade80;color:#052e16">·</div></div><div class="bn ok-t">0,0 d</div></div>
+      <div class="br"><div class="bl">Orgânico/Direto</div><div class="bt"><div class="bf" style="width:62.5%;background:#4ade80;color:#052e16">0,5 dias</div></div></div>
+      <div class="br"><div class="bl">Google Ads</div><div class="bt"><div class="bf" style="width:100%;background:#60a5fa;color:#1e3a5f">0,8 dias</div></div></div>
+      <div class="br"><div class="bl">Meta</div><div class="bt"><div class="bf" style="width:100%;background:#fb923c;color:#fff7ed">0,8 dias</div></div></div>
+    </div>
+    <div class="ib ok"><div class="it">Velocidade não é o problema</div>Mediana de 0–1 dia em todos os canais. O SDR está respondendo rápido. O gargalo está na qualidade da abordagem, não no tempo.</div>
+    <div class="ib warn"><div class="it">66% dos descartes AM são por "não atende/não responde"</div>Com 0,8 dias de média, a falha está no retorno do lead após o primeiro contato — não na velocidade do SDR.</div>
+    <div class="ib inf"><div class="it">Leads quentes Meta são contactados no mesmo dia (mediana 0)</div>O padrão de atendimento para leads com intenção está correto. O problema é identificar qual lead tem intenção na captação.</div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PAINEL 5 — PIPELINE ATIVO
+     ====================================================== -->
+<div class="panel" id="panel-pipeline">
+  <div class="sec-nav">
+    <button class="sec-tab on" onclick="setSub('pipe','resumo')">Visão geral</button>
+    <button class="sec-tab"    onclick="setSub('pipe','camp')">Por campanha</button>
+    <button class="sec-tab"    onclick="setSub('pipe','midiat')">Por mídia</button>
+    <button class="sec-tab"    onclick="setSub('pipe','gargalo')">Gargalos</button>
+  </div>
+
+  <div class="sub-view on" id="pipe-resumo">
+    <div class="cards">
+      <div class="mc info"><div class="ml">Total ativos</div><div class="mv">4.266</div><div class="ms">não descartados</div></div>
+      <div class="mc bad"><div class="ml">Parados no SDR 1º</div><div class="mv">2.023</div><div class="ms">47,4% dos ativos</div></div>
+      <div class="mc warn"><div class="ml">Em follow-up (2–4º)</div><div class="mv">1.298</div><div class="ms">30,4% dos ativos</div></div>
+      <div class="mc"><div class="ml">Prospect</div><div class="mv">547</div><div class="ms">12,8% dos ativos</div></div>
+      <div class="mc ok"><div class="ml">Quentes reais</div><div class="mv">136</div><div class="ms">Em atendimento+</div></div>
+      <div class="mc ok"><div class="ml">Proposta / Venda</div><div class="mv">12</div><div class="ms">10 prop + 2 vendas</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Estágios do pipeline — todos os leads ativos</div>
+      <div class="br"><div class="bl xs">SDR 1º contato</div><div class="bt"><div class="bf" style="width:100%;background:#f59e0b;color:#451a03">2.023 — 47,4%</div></div></div>
+      <div class="br"><div class="bl xs">2º contato</div><div class="bt"><div class="bf" style="width:46.9%;background:#60a5fa44;color:#93c5fd">949 — 22,2%</div></div></div>
+      <div class="br"><div class="bl xs">Prospect</div><div class="bt"><div class="bf" style="width:27%;background:#60a5fa44;color:#93c5fd">547 — 12,8%</div></div></div>
+      <div class="br"><div class="bl xs">Outros / Novo lead</div><div class="bt"><div class="bf" style="width:10.8%;background:#71717a;color:#f4f4f5">261 — 6,1%</div></div></div>
+      <div class="br"><div class="bl xs">3º contato</div><div class="bt"><div class="bf" style="width:10.5%;background:#60a5fa44;color:#93c5fd">213 — 5,0%</div></div></div>
+      <div class="br"><div class="bl xs">4º contato</div><div class="bt"><div class="bf" style="width:6.7%;background:#60a5fa44;color:#93c5fd">136 — 3,2%</div></div></div>
+      <div class="br"><div class="bl xs">Em atendimento</div><div class="bt"><div class="bf" style="width:4.4%;background:#4ade80;color:#052e16">89 — 2,1%</div></div></div>
+      <div class="br"><div class="bl xs">Qualificado</div><div class="bt"><div class="bf" style="width:0.9%;background:#4ade80;color:#052e16">19</div></div></div>
+      <div class="br"><div class="bl xs">Contato Corretor</div><div class="bt"><div class="bf" style="width:0.75%;background:#22c55e;color:#052e16">16</div></div></div>
+      <div class="br"><div class="bl xs">Com Proposta</div><div class="bt"><div class="bf" style="width:0.5%;background:#a78bfa;color:#1e1b4b">10</div></div></div>
+      <div class="br"><div class="bl xs">Venda Realizada</div><div class="bt"><div class="bf" style="width:0.15%;background:#a78bfa;color:#1e1b4b">2</div></div></div>
+    </div>
+    <div class="ib warn"><div class="it">47% dos ativos parados no SDR 1º — maior gargalo</div>2.023 leads abordados uma vez sem avanço. 1.462 deles vieram de Dezembro — 5+ meses atrás, baixíssima probabilidade de conversão hoje.</div>
+    <div class="ib ok"><div class="it">896 leads em 3º contato ou mais — prioridade imediata</div>213 no 3º, 136 no 4º e 547 Prospect. São os leads com mais engajamento — maior chance de conversão agora.</div>
+    <div class="ib ok"><div class="it">136 leads quentes — pipeline real de receita</div>89 Em Atendimento + 19 Qualificados + 16 Corretor + 10 Propostas + 2 Vendas. Foco comercial imediato.</div>
+  </div>
+
+  <div class="sub-view" id="pipe-camp">
+    <div class="camp-block">
+      <div class="camp-header">
+        <div class="camp-name">AM <span class="badge b">5.391 leads</span></div>
+        <div class="camp-meta">Descarte 52,7% &nbsp;·&nbsp; <span style="color:var(--green)">2.549 ativos</span></div>
+      </div>
+      <div class="stage-grid">
+        <div class="stage-cell sc-bad"><div class="sc-n">1.590</div><div class="sc-l">SDR 1º</div></div>
+        <div class="stage-cell"><div class="sc-n">415</div><div class="sc-l">2º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">394</div><div class="sc-l">Prospect</div></div>
+        <div class="stage-cell sc-dim"><div class="sc-n">41</div><div class="sc-l">3º contato</div></div>
+        <div class="stage-cell sc-dim"><div class="sc-n">2</div><div class="sc-l">4º contato</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">52</div><div class="sc-l">Em atend.</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">6</div><div class="sc-l">Qualificado</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">5</div><div class="sc-l">Corretor</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">2</div><div class="sc-l">Proposta</div></div>
+        <div class="stage-cell sc-dim"><div class="sc-n">0</div><div class="sc-l">Venda</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3)">⚠️ 1.590 parados no SDR 1º — 62% são de Dezembro</div>
+    </div>
+
+    <div class="camp-block">
+      <div class="camp-header">
+        <div class="camp-name">FD <span class="badge b">891 leads</span></div>
+        <div class="camp-meta">Descarte 54% &nbsp;·&nbsp; <span style="color:var(--green)">410 ativos</span></div>
+      </div>
+      <div class="stage-grid">
+        <div class="stage-cell sc-warn"><div class="sc-n">92</div><div class="sc-l">SDR 1º</div></div>
+        <div class="stage-cell sc-warn"><div class="sc-n">168</div><div class="sc-l">2º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">69</div><div class="sc-l">Prospect</div></div>
+        <div class="stage-cell"><div class="sc-n">67</div><div class="sc-l">3º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">3</div><div class="sc-l">4º contato</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">8</div><div class="sc-l">Em atend.</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">1</div><div class="sc-l">Qualificado</div></div>
+        <div class="stage-cell sc-dim"><div class="sc-n">0</div><div class="sc-l">Corretor</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">2</div><div class="sc-l">Proposta</div></div>
+        <div class="stage-cell sc-dim"><div class="sc-n">0</div><div class="sc-l">Venda</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--green)">✅ Funil mais equilibrado — 67 no 3º contato proporcionalmente melhor que AM</div>
+    </div>
+
+    <div class="camp-block">
+      <div class="camp-header">
+        <div class="camp-name">WhatsApp / Site <span class="badge b">838 leads</span></div>
+        <div class="camp-meta">Descarte 48,8% &nbsp;·&nbsp; <span style="color:var(--green)">429 ativos</span></div>
+      </div>
+      <div class="stage-grid">
+        <div class="stage-cell sc-warn"><div class="sc-n">163</div><div class="sc-l">SDR 1º</div></div>
+        <div class="stage-cell"><div class="sc-n">166</div><div class="sc-l">2º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">46</div><div class="sc-l">Prospect</div></div>
+        <div class="stage-cell"><div class="sc-n">27</div><div class="sc-l">3º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">2</div><div class="sc-l">4º contato</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">12</div><div class="sc-l">Em atend.</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">8</div><div class="sc-l">Qualificado</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">1</div><div class="sc-l">Corretor</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">4</div><div class="sc-l">Proposta</div></div>
+        <div class="stage-cell sc-dim"><div class="sc-n">0</div><div class="sc-l">Venda</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--green)">✅ Melhor taxa proporcional: 8 qualificados e 4 propostas em 838 leads</div>
+    </div>
+
+    <div class="camp-block">
+      <div class="camp-header">
+        <div class="camp-name">Sem campanha / Orgânico <span class="badge ok">2 vendas</span></div>
+        <div class="camp-meta">1.430 leads &nbsp;·&nbsp; Descarte 38,6% &nbsp;·&nbsp; <span style="color:var(--green)">878 ativos</span></div>
+      </div>
+      <div class="stage-grid">
+        <div class="stage-cell sc-warn"><div class="sc-n">178</div><div class="sc-l">SDR 1º</div></div>
+        <div class="stage-cell"><div class="sc-n">200</div><div class="sc-l">2º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">38</div><div class="sc-l">Prospect</div></div>
+        <div class="stage-cell"><div class="sc-n">78</div><div class="sc-l">3º contato</div></div>
+        <div class="stage-cell"><div class="sc-n">129</div><div class="sc-l">4º contato</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">17</div><div class="sc-l">Em atend.</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">4</div><div class="sc-l">Qualificado</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">10</div><div class="sc-l">Corretor</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">2</div><div class="sc-l">Proposta</div></div>
+        <div class="stage-cell sc-hot"><div class="sc-n">2</div><div class="sc-l">Venda ✅</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--green)">✅ As 2 vendas do período vieram deste grupo — brand search Google e orgânico. 129 no 4º contato: pipeline mais aquecido.</div>
+    </div>
+  </div>
+
+  <div class="sub-view" id="pipe-midiat">
+    <div class="sec">
+      <div class="st">Pipeline ativo por mídia</div>
+      <div style="overflow-x:auto">
+      <table class="pipe-table">
+        <thead><tr>
+          <th>Estágio</th>
+          <th style="text-align:right">Meta</th>
+          <th style="text-align:right">Google Ads</th>
+          <th style="text-align:right">WhatsApp</th>
+          <th style="text-align:right">Orgânico</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>SDR 1º contato</td><td class="num warn-t">1.791</td><td class="num">202</td><td class="num">17</td><td class="num">3</td></tr>
+          <tr><td>2º contato</td><td class="num">710</td><td class="num">217</td><td class="num">5</td><td class="num">4</td></tr>
+          <tr><td>3º contato</td><td class="num">170</td><td class="num">37</td><td class="num">1</td><td class="num">1</td></tr>
+          <tr><td>4º contato</td><td class="num">127</td><td class="num">6</td><td class="num">2</td><td class="num">1</td></tr>
+          <tr><td>Prospect</td><td class="num">482</td><td class="num">48</td><td class="num">9</td><td class="num">3</td></tr>
+          <tr><td>Em Atendimento</td><td class="num ok-t">67</td><td class="num ok-t">20</td><td class="num ok-t">1</td><td class="num">—</td></tr>
+          <tr><td>Qualificado</td><td class="num ok-t">9</td><td class="num ok-t">8</td><td class="num ok-t">2</td><td class="num">—</td></tr>
+          <tr><td>Contato Corretor</td><td class="num ok-t">12</td><td class="num ok-t">3</td><td class="num ok-t">1</td><td class="num">—</td></tr>
+          <tr><td>Com Proposta</td><td class="num ok-t">4</td><td class="num ok-t">5</td><td class="num ok-t">1</td><td class="num">—</td></tr>
+          <tr><td>Venda Realizada</td><td class="num">—</td><td class="num ok-t">1</td><td class="num">—</td><td class="num ok-t">1</td></tr>
+          <tr style="border-top:1px solid var(--border2);font-weight:600"><td>Total ativos</td><td class="num">3.439</td><td class="num ok-t">548</td><td class="num">39</td><td class="num ok-t">13</td></tr>
+          <tr><td>Quentes (Em atend+)</td><td class="num ok-t">92</td><td class="num ok-t">37</td><td class="num ok-t">5</td><td class="num ok-t">1</td></tr>
+          <tr><td style="color:var(--text3)">% quentes / ativos</td><td class="num" style="color:var(--text2)">2,7%</td><td class="num ok-t" style="font-weight:600">6,8%</td><td class="num ok-t" style="font-weight:600">12,8%</td><td class="num ok-t">7,7%</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="ib ok"><div class="it">Google: 6,8% dos ativos são quentes — 2,5× melhor que Meta</div>548 ativos → 37 quentes, 5 propostas, 1 venda. Cada 15 leads Google ativos = 1 quente.</div>
+    <div class="ib ok"><div class="it">WhatsApp: 12,8% dos ativos são quentes — o melhor índice</div>39 ativos e 5 quentes. Cada 8 leads WhatsApp ativos = 1 quente. Canal pequeno, altíssima eficiência.</div>
+    <div class="ib warn"><div class="it">Meta: 1.791 parados no SDR 1º — oportunidade de reativação</div>52% dos ativos Meta no primeiro contato. Campanha de reativação pode gerar resultado sem novo investimento em mídia.</div>
+  </div>
+
+  <div class="sub-view" id="pipe-gargalo">
+    <div class="cards">
+      <div class="mc bad"><div class="ml">Parados SDR 1º</div><div class="mv">2.023</div><div class="ms">maior gargalo</div></div>
+      <div class="mc bad"><div class="ml">Desses, de Dezembro</div><div class="mv">1.462</div><div class="ms">5+ meses sem avanço</div></div>
+      <div class="mc ok"><div class="ml">3º–4º contato</div><div class="mv">349</div><div class="ms">prioridade alta</div></div>
+      <div class="mc ok"><div class="ml">Prospects aquecidos</div><div class="mv">547</div><div class="ms">prioridade média</div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Distribuição do gargalo SDR 1º por campanha</div>
+      <div class="br"><div class="bl">AM</div><div class="bt"><div class="bf" style="width:100%;background:#f87171;color:#fee2e2">1.590 parados</div></div></div>
+      <div class="br"><div class="bl">Sem campanha</div><div class="bt"><div class="bf" style="width:11.2%;background:#fb923c;color:#fff7ed">178</div></div></div>
+      <div class="br"><div class="bl">WhatsApp / Site</div><div class="bt"><div class="bf" style="width:10.3%;background:#60a5fa44;color:#93c5fd">163</div></div></div>
+      <div class="br"><div class="bl">FD</div><div class="bt"><div class="bf" style="width:5.8%;background:#60a5fa44;color:#93c5fd">92</div></div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Leads aquecidos (3º contato ou mais) por campanha</div>
+      <div class="br"><div class="bl">AM</div><div class="bt"><div class="bf" style="width:100%;background:#4ade80;color:#052e16">437 aquecendo</div></div></div>
+      <div class="br"><div class="bl">Sem campanha</div><div class="bt"><div class="bf" style="width:56%;background:#4ade80;color:#052e16">245 — 2 vendas saíram aqui</div></div></div>
+      <div class="br"><div class="bl">FD</div><div class="bt"><div class="bf" style="width:31.8%;background:#5DCAA5;color:#04342C">139</div></div></div>
+      <div class="br"><div class="bl">WhatsApp / Site</div><div class="bt"><div class="bf" style="width:17.2%;background:#5DCAA5;color:#04342C">75</div></div></div>
+    </div>
+    <div class="sec">
+      <div class="st">Prioridades de ação</div>
+      <div class="ib ok"><div class="it">1. Trabalhar os 896 leads em 3º contato ou mais agora</div>213 no 3º + 136 no 4º + 547 Prospect. Leads com mais engajamento — maior retorno imediato sem novo investimento em mídia.</div>
+      <div class="ib ok"><div class="it">2. Foco total nos 136 leads quentes ativos</div>89 Em Atendimento + 19 Qualificados + 16 Corretor + 10 Propostas. Esses podem virar venda agora.</div>
+      <div class="ib warn"><div class="it">3. Decidir o que fazer com os 1.462 leads de Dezembro no SDR 1º</div>Opções: campanha de reativação segmentada ou descarte manual. Deixá-los parados distorce as métricas do pipeline.</div>
+      <div class="ib inf"><div class="it">4. FD tem funil mais saudável proporcionalmente</div>410 ativos, 67 no 3º contato — muito melhor proporção que AM. O processo SDR FD está funcionando melhor.</div>
+      <div class="ib bad"><div class="it">5. Nenhuma campanha paga AM/FD gerou venda no período</div>As 2 vendas vieram de busca orgânica/brand search. O investimento em mídia paga ainda não fechou ciclo de venda.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+const panels = ['geral','am','fd','midia','pipeline'];
+const subs = {
+  geral:    ['resumo','funil','mes','descarte'],
+  am:       ['resumo','subcamp','criativos','descarte'],
+  fd:       ['resumo','subcamp','descarte'],
+  midia:    ['comp','google','metac','velocidade'],
+  pipe:     ['resumo','camp','midiat','gargalo']
+};
+
+function setPanel(name){
+  panels.forEach(p => {
+    document.getElementById('panel-'+p).classList.toggle('on', p===name);
+  });
+  document.querySelectorAll('.main-tab').forEach((b,i)=>{
+    b.classList.toggle('on', panels[i]===name);
+  });
+  if(name==='geral' && !window._gm) initGeralMes();
+  if(name==='midia' && !window._mm) initMidiaMes();
+}
+
+function setSub(panel, sub){
+  const panelId = panel === 'pipe' ? 'panel-pipeline' : 'panel-'+panel;
+  document.querySelectorAll('#'+panelId+' .sub-view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('#'+panelId+' .sec-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(panel+'-'+sub).classList.add('on');
+  const list = subs[panel] || [];
+  const idx = list.indexOf(sub);
+  const tabs = document.querySelectorAll('#'+panelId+' .sec-tab');
+  if(tabs[idx]) tabs[idx].classList.add('on');
+  if(panel==='geral' && sub==='mes' && !window._gm) initGeralMes();
+  if(panel==='midia' && (sub==='comp') && !window._mm) initMidiaMes();
+}
+
+const gc = 'rgba(255,255,255,0.06)';
+const tc = '#555';
+
+function initGeralMes(){
+  window._gm = true;
+  new Chart(document.getElementById('chart-geral-mes'),{
+    type:'bar',
+    data:{
+      labels:['Dez/25','Jan/26','Fev/26','Mar/26','Abr/26','Mai/26'],
+      datasets:[
+        {label:'Total leads',data:[2708,3788,616,412,440,586],backgroundColor:'#3b82f6'},
+        {label:'Descartes',data:[1100,1700,290,195,185,390],backgroundColor:'#f87171'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}}
+  });
+  document.getElementById('leg-geral-mes').innerHTML=
+    '<span><span class="ld" style="background:#3b82f6"></span>Total leads</span>'+
+    '<span><span class="ld" style="background:#f87171"></span>Descartes</span>';
+}
+
+function initMidiaMes(){
+  window._mm = true;
+  new Chart(document.getElementById('chart-mes-midia'),{
+    type:'bar',
+    data:{
+      labels:['Dez','Jan','Fev','Mar','Abr','Mai'],
+      datasets:[
+        {label:'Meta',data:[2534,3582,373,266,211,237],backgroundColor:'#3b82f6'},
+        {label:'Google Ads',data:[91,142,193,93,201,285],backgroundColor:'#4ade80'},
+        {label:'WhatsApp',data:[22,0,0,16,0,37],backgroundColor:'#fbbf24'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}}
+  });
+  document.getElementById('leg-mes-midia').innerHTML=
+    '<span><span class="ld" style="background:#3b82f6"></span>Meta</span>'+
+    '<span><span class="ld" style="background:#4ade80"></span>Google Ads</span>'+
+    '<span><span class="ld" style="background:#fbbf24"></span>WhatsApp</span>';
+}
+
+initGeralMes();
+</script>
+</body>
+</html>
